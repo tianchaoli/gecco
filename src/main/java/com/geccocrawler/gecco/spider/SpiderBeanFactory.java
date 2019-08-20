@@ -68,12 +68,12 @@ public class SpiderBeanFactory {
 	public SpiderBeanFactory(String classPath, PipelineFactory pipelineFactory) {
 		if (StringUtils.isNotEmpty(classPath)) {
 			reflections = new Reflections(
-					ConfigurationBuilder.build("com.geccocrawler.gecco", classPath, GeccoClassLoader.get())
+					ConfigurationBuilder.build("com.geccocrawler.gecco.", classPath, GeccoClassLoader.get())
 							.setMetadataAdapter(new GeccoJavaReflectionAdapter())
 							.setExpandSuperTypes(false));
 			// reflections = new Reflections("com.geccocrawler.gecco", classPath);
 		} else {
-			reflections = new Reflections(ConfigurationBuilder.build("com.geccocrawler.gecco", GeccoClassLoader.get())
+			reflections = new Reflections(ConfigurationBuilder.build("com.geccocrawler.gecco.", GeccoClassLoader.get())
 					.setMetadataAdapter(new GeccoJavaReflectionAdapter())
 					.setExpandSuperTypes(false));
 			// reflections = new Reflections("com.geccocrawler.gecco");
