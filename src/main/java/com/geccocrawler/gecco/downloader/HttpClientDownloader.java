@@ -6,11 +6,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
+import java.net.SocketTimeoutException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.net.ssl.SSLContext;
 
@@ -30,6 +32,7 @@ import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
+import org.apache.http.conn.ConnectTimeoutException;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
@@ -203,7 +206,7 @@ public class HttpClientDownloader extends AbstractDownloader {
 				}
 				resp.setContentType(contentType);
 				if(!isImage(contentType)) { 
-					String charset = getCharset(request.getCharset(), contentType);
+					String charset = request.isForceUseCharset() ? request.getCharset():getCharset(request.getCharset(), contentType);
 					resp.setCharset(charset);
 					//String content = EntityUtils.toString(responseEntity, charset);
 					String content = getContent(raw, responseEntity.getContentLength(), charset);
@@ -220,8 +223,12 @@ public class HttpClientDownloader extends AbstractDownloader {
 				proxys.success(proxy.getHostName(), proxy.getPort());
 			}
 			return resp;
-		} catch (IOException e) {
-			//超时等
+		} catch(ConnectTimeoutException | SocketTimeoutException e) {
+			if(proxy != null) {
+				proxys.failure(proxy.getHostName(), proxy.getPort());
+			}
+			throw new DownloadTimeoutException(e);
+		} catch(IOException e) {
 			if(proxy != null) {
 				proxys.failure(proxy.getHostName(), proxy.getPort());
 			}
@@ -258,7 +265,7 @@ public class HttpClientDownloader extends AbstractDownloader {
 	        }
 	        return buffer.toString();
 		} finally {
-			instream.reset();
+			Objects.requireNonNull(instream).reset();
 		}
         
     }
