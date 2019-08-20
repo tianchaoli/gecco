@@ -7,6 +7,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 
 import org.apache.commons.lang3.StringUtils;
@@ -75,7 +76,11 @@ public class GeccoEngine extends Thread {
 	private boolean mobile;
 
 	private boolean debug;
-
+	
+	private Properties prop;
+	
+	private List<Exception> errors;
+	
 	private int retry;
 
 	private EventListener eventListener;
@@ -200,7 +205,16 @@ public class GeccoEngine extends Thread {
 		getSpiderBeanFactory().removeSpiderBean(spiderBeanClass);
 		DynamicGecco.unregister(spiderBeanClass);
 	}
+	
+	public GeccoEngine setProperties(Properties prop) {
+		this.prop = prop;
+		return this;
+	}
 
+	public Properties getProperties() {
+		return this.prop;
+	}
+	
 	@Override
 	public void run() {
 		if (debug) {
@@ -329,6 +343,17 @@ public class GeccoEngine extends Thread {
 	
 	public boolean isProxy() {
 		return proxy;
+	}
+	
+	public synchronized void addException(Exception ex) {
+		if (this.errors == null) {
+			this.errors = new ArrayList<Exception>();
+		}
+		this.errors.add(ex);
+	}
+	
+	public synchronized List<Exception> getExceptions() {
+		return this.errors;
 	}
 
 	/**

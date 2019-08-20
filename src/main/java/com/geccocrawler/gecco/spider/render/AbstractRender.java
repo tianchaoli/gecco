@@ -15,6 +15,7 @@ import com.geccocrawler.gecco.request.HttpRequest;
 import com.geccocrawler.gecco.response.HttpResponse;
 import com.geccocrawler.gecco.scheduler.DeriveSchedulerContext;
 import com.geccocrawler.gecco.spider.SpiderBean;
+import com.geccocrawler.gecco.spider.SpiderThreadLocal;
 import com.geccocrawler.gecco.utils.ReflectUtils;
 
 import net.sf.cglib.beans.BeanMap;
@@ -70,7 +71,8 @@ public abstract class AbstractRender implements Render {
 			requests(request, bean);
 			return bean;
 		} catch(Exception ex) {
-			//throw new RenderException(ex.getMessage(), clazz);
+			SpiderThreadLocal.get().getEngine().addException(ex);
+			// throw new RenderException(ex.getMessage(), clazz);
 			log.error("instance SpiderBean error", ex);
 			return null;
 		}

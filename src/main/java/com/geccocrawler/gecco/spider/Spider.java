@@ -96,6 +96,7 @@ public class Spider implements Runnable {
 						spiderScheduler.into(request.subRequest(response.getContent()));
 					} else {
 						log.error("cant't match url : " + request.getUrl());
+						engine.addException(new RuntimeException("cant't match url : " + request.getUrl()));
 					}
 				} else {
 					//获取SpiderBean的上下文：downloader,beforeDownloader,afterDownloader,render,pipelines
@@ -115,6 +116,7 @@ public class Spider implements Runnable {
 					}
 				}
 			} catch(Exception ex) {
+				engine.addException(ex);
 				if(engine.isDebug()) {
 					log.error(request.getUrl() + " ERROR : ", ex);
 				}
