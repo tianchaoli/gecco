@@ -24,5 +24,10 @@ public class DownloaderContext {
 		return downloader.download(request, context.getTimeout());
 	}
 	
+	public static HttpResponse defaultDownload(HttpRequest request, String cssPathInPage) throws DownloadException {
+		SpiderBeanContext context = SpiderThreadLocal.get().getSpiderBeanContext();
+		Downloader downloader = SpiderThreadLocal.get().getEngine().getSpiderBeanFactory().getDownloaderFactory().defaultDownloader();
+		return downloader.download(request, cssPathInPage, context.getTimeout());
+	}
 
 }

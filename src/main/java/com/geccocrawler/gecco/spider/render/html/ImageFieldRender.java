@@ -9,6 +9,7 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.reflections.ReflectionUtils;
 
+import com.geccocrawler.gecco.annotation.HtmlField;
 import com.geccocrawler.gecco.annotation.Image;
 import com.geccocrawler.gecco.downloader.DownloaderContext;
 import com.geccocrawler.gecco.request.HttpRequest;
@@ -51,6 +52,11 @@ public class ImageFieldRender implements FieldRender {
 		if(StringUtils.isEmpty(imgUrl)) {
 			return imgUrl;
 		}
+		
+		// ! we also need the cssPath for advanced downloaders
+		HtmlField htmlField = field.getAnnotation(HtmlField.class);
+		String cssPath = htmlField.cssPath();
+		
 		Image image = field.getAnnotation(Image.class);
 		String parentPath = image.download();
 		if(StringUtils.isEmpty(parentPath)) {
@@ -66,7 +72,7 @@ public class ImageFieldRender implements FieldRender {
 				imgUrl = before + "?" + last;
 			}
 			HttpRequest subRequest = request.subRequest(imgUrl);
-			subReponse = DownloaderContext.defaultDownload(subRequest);
+			subReponse = DownloaderContext.defaultDownload(subRequest, cssPath);
 			return DownloadImage.download(parentPath, fileName, subReponse.getRaw());
 		} catch (Exception ex) {
 			//throw new FieldRenderException(field, ex.getMessage(), ex);
