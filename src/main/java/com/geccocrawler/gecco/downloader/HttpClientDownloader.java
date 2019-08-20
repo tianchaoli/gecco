@@ -33,12 +33,14 @@ import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.http.ssl.TrustStrategy;
@@ -111,7 +113,12 @@ public class HttpClientDownloader extends AbstractDownloader {
 					}
 				}).build();
 	}
-
+	
+	@Override
+	public HttpResponse download(HttpRequest request, String cssPathInPage, int timeout) throws DownloadException {
+		return download(request, timeout);
+	}
+	
 	@Override
 	public HttpResponse download(HttpRequest request, int timeout) throws DownloadException {
 		if(log.isDebugEnabled()) {
@@ -121,17 +128,26 @@ public class HttpClientDownloader extends AbstractDownloader {
 		if(request instanceof HttpPostRequest) {//post
 			HttpPostRequest post = (HttpPostRequest)request;
 			reqObj = new HttpPost(post.getUrl());
-			//post fields
-			List<NameValuePair> fields = new ArrayList<NameValuePair>();
-			for(Map.Entry<String, String> entry : post.getFields().entrySet()) {
-				NameValuePair nvp = new BasicNameValuePair(entry.getKey(), entry.getValue());
-				fields.add(nvp);
-			}
-			try {
-				HttpEntity entity = new UrlEncodedFormEntity(fields, "UTF-8");
+			
+			// Note: Multipart request is currently not supported, therefore,
+			// we can expect body and fields are mutually exclusive
+			if (post.getBody() != null || ! post.getBody().trim().isEmpty()) {
+				StringEntity entity = new StringEntity(post.getBody(), HTTP.UTF_8);
 				((HttpEntityEnclosingRequestBase) reqObj).setEntity(entity);
-			} catch (UnsupportedEncodingException e) {
-				e.printStackTrace();
+				
+			} else {
+				//post fields
+				List<NameValuePair> fields = new ArrayList<NameValuePair>();
+				for(Map.Entry<String, String> entry : post.getFields().entrySet()) {
+					NameValuePair nvp = new BasicNameValuePair(entry.getKey(), entry.getValue());
+					fields.add(nvp);
+				}
+				try {
+					HttpEntity entity = new UrlEncodedFormEntity(fields, "UTF-8");
+					((HttpEntityEnclosingRequestBase) reqObj).setEntity(entity);
+				} catch (UnsupportedEncodingException e) {
+					e.printStackTrace();
+				}
 			}
 		} else {//get
 			reqObj = new HttpGet(request.getUrl());
