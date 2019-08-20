@@ -15,13 +15,13 @@ public class ToutiaoJsonPage implements JsonBean {
 
 	private static final long serialVersionUID = 2250225801616402995L;
 
-	@JSONPath("$.count")
+	@JSONPath(value="$.count", optional=true)
 	private int count;
 
-	@JSONPath("$.has_more")
+	@JSONPath(value="$.has_more", optional=true)
 	private boolean hasMore;
 
-	@JSONPath("$.data")
+	@JSONPath(value="$.data", optional=true)
 	private List<ToutiaoJsonArticle> articles;
 
 //	@JSONPath("$.ads")

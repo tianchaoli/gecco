@@ -14,7 +14,7 @@ public class ToutiaoJsonArticle implements JsonBean {
 
 	private static final long serialVersionUID = 2250225801616402995L;
 
-	@JSONPath("$.title")
+	@JSONPath(value="$.title", optional=true)
 	private String title;
 
 //	@JSONPath("$.ads")
