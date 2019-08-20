@@ -128,15 +128,21 @@ public class JsonFieldRender implements FieldRender {
 	}
 
 	private Object objectRender(Object src, Field field, String jsonPath, Object json) {
+		
+		JSONPath jsonPathObj = field.getAnnotation(JSONPath.class);
+		
 		if (src == null) {
-			//throw new FieldRenderException(field, jsonPath + " not found in : " + json);
-			FieldRenderException.log(field, jsonPath + " not found in : " + json);
-		}
-		try {
-			return Conversion.getValue(field.getType(), src);
-		} catch (Exception ex) {
-			//throw new FieldRenderException(field, "Conversion error : " + src, ex);
-			FieldRenderException.log(field, "Conversion error : " + src, ex);
+			if (jsonPathObj.optional() == false) {
+				//throw new FieldRenderException(field, jsonPath + " not found in : " + json);
+				FieldRenderException.log(field, jsonPath + " not found in : " + json);
+			}
+		} else {
+			try {
+				return Conversion.getValue(field.getType(), src);
+			} catch (Exception ex) {
+				//throw new FieldRenderException(field, "Conversion error : " + src, ex);
+				FieldRenderException.log(field, "Conversion error : " + src, ex);
+			}
 		}
 		return null;
 	}

@@ -24,4 +24,11 @@ public @interface JSONPath {
 	 */
 	String value();
 	
+	/**
+	 * 表示是否为可选值
+	 * 
+	 * @return 是否可以为可选值
+	 */
+	boolean optional() default true;
+	
 }
